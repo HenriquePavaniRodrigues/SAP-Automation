@@ -1,0 +1,190 @@
+import win32com.client
+import time
+import os
+import psutil
+from datetime import datetime
+
+def log(mensagem, tipo="info"):
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    icones = {"info": "ℹ️", "success": "✅", "warning": "⚠️", "error": "❌"}
+    print(f"[{timestamp}] {icones.get(tipo, 'ℹ️')} {mensagem}")
+
+def fechar_excel_especifico(caminho_arquivo):
+    caminho_arquivo = caminho_arquivo.lower()
+    log("Aguardando 3 minutos para garantir salvamento do Excel...", "info")
+    time.sleep(30)  # Espera 3 minutos antes de fechar o Excel
+    for proc in psutil.process_iter(attrs=["pid", "name"]):
+        if proc.info["name"] and "excel.exe" in proc.info["name"].lower():
+            try:
+                for handle in proc.open_files():
+                    if caminho_arquivo in handle.path.lower():
+                        log(f"Fechando Excel: {handle.path}", "warning")
+                        proc.terminate()
+                        return
+            except Exception:
+                pass
+
+def conectar_sap():
+    try:
+        log("Conectando ao SAP GUI...")
+        SapGuiAuto = win32com.client.GetObject("SAPGUI")
+        application = SapGuiAuto.GetScriptingEngine
+        connection = application.Children(0)
+        session = connection.Children(0)
+        log("Conexão estabelecida com sucesso!", "success")
+        return session
+    except Exception as e:
+        log(f"Erro ao conectar ao SAP GUI: {e}", "error")
+        exit()
+
+def executar_mb51(session):
+    caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Base_Entradas_temp.XLSX")
+    log("Executando MB51...")
+    session.findById("wnd[0]").maximize()
+    session.findById("wnd[0]/tbar[0]/okcd").text = "MB51"
+    session.findById("wnd[0]").sendVKey(0)
+    session.findById("wnd[0]/tbar[1]/btn[17]").press()
+    session.findById("wnd[1]/usr/txtENAME-LOW").text = "DRT54423"
+    session.findById("wnd[1]/usr/txtENAME-LOW").setFocus()
+    session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 8
+    session.findById("wnd[1]/tbar[0]/btn[8]").press()
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").currentCellRow = 5
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").selectedRows = "5"
+    session.findById("wnd[1]/tbar[0]/btn[2]").press()
+    session.findById("wnd[0]/tbar[1]/btn[8]").press()
+    session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    session.findById("wnd[1]/usr/ctxtDY_PATH").text = os.path.dirname(caminho_arquivo)
+    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = os.path.basename(caminho_arquivo)
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    time.sleep(2)
+    if session.Children.count > 1:
+        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    fechar_excel_especifico(caminho_arquivo)
+    log("MB51 concluído!", "success")
+
+def executar_mb25(session):
+    caminho_arquivo = "C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk\\NS_hoje.XLSX"
+    log("Executando MB25...")
+    session.findById("wnd[0]").maximize()
+    session.findById("wnd[0]/tbar[0]/okcd").text = "MB25"
+    session.findById("wnd[0]").sendVKey(0)
+    session.findById("wnd[0]/tbar[1]/btn[17]").press()
+    session.findById("wnd[1]/usr/txtENAME-LOW").text = "DRT54423"
+    session.findById("wnd[1]/usr/txtENAME-LOW").setFocus()
+    session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 8
+    session.findById("wnd[1]/tbar[0]/btn[8]").press()
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").currentCellRow = 3
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").selectedRows = "3"
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").doubleClickCurrentCell()
+    session.findById("wnd[0]/tbar[1]/btn[8]").press()
+    session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    session.findById("wnd[1]/usr/ctxtDY_PATH").text = os.path.dirname(caminho_arquivo)
+    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = os.path.basename(caminho_arquivo)
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    time.sleep(2)
+    if session.Children.count > 1:
+        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    fechar_excel_especifico(caminho_arquivo)
+    log("MB25 concluído!", "success")
+
+def executar_mc9(session):
+    caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Base_Parcial.XLSX")
+    log("Executando MC.9...")
+    session.findById("wnd[0]").maximize()
+    session.findById("wnd[0]/tbar[0]/okcd").text = "MC.9"
+    session.findById("wnd[0]").sendVKey(0)
+
+    print("Abrindo opções de filtro...")
+    session.findById("wnd[0]/tbar[1]/btn[17]").press()
+
+    # Inserir número de usuário
+    print("Inserindo número de usuário...")
+    session.findById("wnd[1]/usr/txtENAME-LOW").text = "DRT54423"
+    session.findById("wnd[1]/usr/txtENAME-LOW").setFocus()
+    session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 8
+    session.findById("wnd[1]/tbar[0]/btn[8]").press()
+
+    print("Selecionando primeira linha e confirmando...")
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").selectedRows = "0"
+    session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").doubleClickCurrentCell()
+
+    print("Inserindo período...")
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-LOW").text = "03.2025"
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").text = "03.2025"
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").setFocus()
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").caretPosition = 7
+    session.findById("wnd[0]/tbar[1]/btn[8]").press()
+
+    print("Exportando dados...")
+    session.findById("wnd[0]/mbar/menu[0]/menu[6]/menu[0]").select()
+    session.findById("wnd[1]/tbar[0]/btn[8]").press()
+
+    print("Marcando caixas de seleção...")
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[0,0]").selected = True
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[1,0]").selected = True
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[4,0]").selected = True
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[4,0]").setFocus()
+    session.findById("wnd[1]").sendVKey(83)
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[6,0]").selected = True
+    session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[6,0]").setFocus()
+
+    print("Confirmando seleção...")
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+
+    print("Selecionando radio button Tabela [0,0]...")
+    session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[0,0]").select()
+    session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[0,0]").setFocus()
+
+    print("Confirmando exportação Tabela...")
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+
+    # Aguardar para garantir que o Excel tenha tempo de abrir
+    print("Aguardando 5 segundos para abrir Excel...")
+    time.sleep(5)
+
+    print("Conectando ao Excel...")
+    excel = win32com.client.Dispatch("Excel.Application")
+
+    # Desativar alertas para não perguntar se deseja sobrescrever
+    excel.DisplayAlerts = False
+
+    # Obter a pasta de trabalho ativa
+    wb = excel.ActiveWorkbook
+
+    # Caminho onde o arquivo será salvo
+    save_path = r"C:\Users\DRT78473\OneDrive - Hospital Albert Einstein\Documentos\DevDesk\Base_Parcial.xlsx"
+
+    print("Salvando arquivo em:", save_path)
+    # Salvar o arquivo substituindo o existente
+    wb.SaveAs(save_path, FileFormat=51, ConflictResolution=2)
+
+    # Reativar alertas
+    excel.DisplayAlerts = True
+
+    # Fechar o Excel
+    print("Fechando Excel...")
+    wb.Close(SaveChanges=False)
+    excel.Quit()
+
+    print(f"Arquivo salvo em: {save_path}")
+
+    print("Voltando para tela inicial do SAP...")
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    session.findById("wnd[1]/usr/btnSPOP-OPTION2").press()
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+
+    print("Finalizado com sucesso!")
+
+if __name__ == "__main__":
+    session = conectar_sap()
+    executar_mb51(session)
+    executar_mb25(session)
+    executar_mc9(session)
+    log("Todos os processos foram concluídos! 🚀", "success")
