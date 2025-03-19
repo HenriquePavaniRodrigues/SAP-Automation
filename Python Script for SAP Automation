@@ -3,6 +3,7 @@ import time
 import os
 import psutil
 from datetime import datetime
+import shutil
 
 def log(mensagem, tipo="info"):
     timestamp = datetime.now().strftime("%H:%M:%S")
@@ -93,6 +94,35 @@ def executar_mb25(session):
     fechar_excel_especifico(caminho_arquivo)
     log("MB25 concluído!", "success")
 
+def executar_zmm304(session):
+    caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Emprestimos.XLSX")
+    log("Executando ZMM304...")
+    session.findById("wnd[0]").maximize()
+    session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM304"
+    session.findById("wnd[0]").sendVKey(0)
+    session.findById("wnd[0]/usr/ctxtS_BUDAT-LOW").text = "01.01.2022"
+    session.findById("wnd[0]/usr/ctxtS_BUDAT-HIGH").text = datetime.now().strftime("%d.%m.%Y")
+    session.findById("wnd[0]/usr/ctxtS_BUDAT-HIGH").setFocus()
+    session.findById("wnd[0]/usr/ctxtS_BUDAT-HIGH").caretPosition = 10
+    session.findById("wnd[0]/tbar[1]/btn[8]").press()
+    session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
+    session.findById("wnd[0]/shellcont/shell").selectContextMenuItem("&XXL")
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    session.findById("wnd[1]/usr/ctxtDY_PATH").text = os.path.dirname(caminho_arquivo)
+    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = os.path.basename(caminho_arquivo)
+    session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = len(os.path.basename(caminho_arquivo))
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
+    time.sleep(2)
+    if session.Children.count > 1:
+        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+    session.findById("wnd[0]/tbar[0]/btn[12]").press()
+    
+    log("Voltando para tela inicial do SAP...")
+    session.findById("wnd[0]/tbar[0]/btn[15]").press()
+    time.sleep(1)
+    fechar_excel_especifico(caminho_arquivo)
+    log("Retorno para a tela inicial concluído.", "success")
+
 def executar_mc9(session):
     caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Base_Parcial.XLSX")
     log("Executando MC.9...")
@@ -100,32 +130,32 @@ def executar_mc9(session):
     session.findById("wnd[0]/tbar[0]/okcd").text = "MC.9"
     session.findById("wnd[0]").sendVKey(0)
 
-    print("Abrindo opções de filtro...")
+    log("Abrindo opções de filtro...")
     session.findById("wnd[0]/tbar[1]/btn[17]").press()
 
     # Inserir número de usuário
-    print("Inserindo número de usuário...")
+    log("Inserindo número de usuário...")
     session.findById("wnd[1]/usr/txtENAME-LOW").text = "DRT54423"
     session.findById("wnd[1]/usr/txtENAME-LOW").setFocus()
     session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 8
     session.findById("wnd[1]/tbar[0]/btn[8]").press()
 
-    print("Selecionando primeira linha e confirmando...")
+    log("Selecionando primeira linha e confirmando...")
     session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").selectedRows = "0"
     session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").doubleClickCurrentCell()
 
-    print("Inserindo período...")
+    log("Inserindo período...")
     session.findById("wnd[0]/usr/ctxtSL_SPMON-LOW").text = "03.2025"
     session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").text = "03.2025"
     session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").setFocus()
     session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").caretPosition = 7
     session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
-    print("Exportando dados...")
+    log("Exportando dados...")
     session.findById("wnd[0]/mbar/menu[0]/menu[6]/menu[0]").select()
     session.findById("wnd[1]/tbar[0]/btn[8]").press()
 
-    print("Marcando caixas de seleção...")
+    log("Marcando caixas de seleção...")
     session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[0,0]").selected = True
     session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[1,0]").selected = True
     session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[4,0]").selected = True
@@ -134,22 +164,22 @@ def executar_mc9(session):
     session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[6,0]").selected = True
     session.findById("wnd[1]/usr/sub:SAPLMCS2:0210/chkLMCS2-MRKKZ[6,0]").setFocus()
 
-    print("Confirmando seleção...")
+    log("Confirmando seleção...")
     session.findById("wnd[1]/tbar[0]/btn[0]").press()
 
-    print("Selecionando radio button Tabela [0,0]...")
+    log("Selecionando radio button Tabela [0,0]...")
     session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[0,0]").select()
     session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[0,0]").setFocus()
 
-    print("Confirmando exportação Tabela...")
+    log("Confirmando exportação Tabela...")
     session.findById("wnd[1]/tbar[0]/btn[0]").press()
     session.findById("wnd[1]/tbar[0]/btn[0]").press()
 
     # Aguardar para garantir que o Excel tenha tempo de abrir
-    print("Aguardando 5 segundos para abrir Excel...")
+    log("Aguardando 5 segundos para abrir Excel...")
     time.sleep(5)
 
-    print("Conectando ao Excel...")
+    log("Conectando ao Excel...")
     excel = win32com.client.Dispatch("Excel.Application")
 
     # Desativar alertas para não perguntar se deseja sobrescrever
@@ -161,7 +191,7 @@ def executar_mc9(session):
     # Caminho onde o arquivo será salvo
     save_path = r"C:\Users\DRT78473\OneDrive - Hospital Albert Einstein\Documentos\DevDesk\Base_Parcial.xlsx"
 
-    print("Salvando arquivo em:", save_path)
+    log("Salvando arquivo em:", save_path)
     # Salvar o arquivo substituindo o existente
     wb.SaveAs(save_path, FileFormat=51, ConflictResolution=2)
 
@@ -169,22 +199,45 @@ def executar_mc9(session):
     excel.DisplayAlerts = True
 
     # Fechar o Excel
-    print("Fechando Excel...")
+    log("Fechando Excel...")
     wb.Close(SaveChanges=False)
     excel.Quit()
 
-    print(f"Arquivo salvo em: {save_path}")
+    log(f"Arquivo salvo em: {save_path}")
 
-    print("Voltando para tela inicial do SAP...")
+    log("Voltando para tela inicial do SAP...")
     session.findById("wnd[0]/tbar[0]/btn[15]").press()
     session.findById("wnd[1]/usr/btnSPOP-OPTION2").press()
     session.findById("wnd[0]/tbar[0]/btn[15]").press()
 
-    print("Finalizado com sucesso!")
+    log("Finalizado com sucesso!")
 
 if __name__ == "__main__":
     session = conectar_sap()
     executar_mb51(session)
     executar_mb25(session)
     executar_mc9(session)
+    executar_zmm304(session)
     log("Todos os processos foram concluídos! 🚀", "success")
+    log("////")
+    log("Iniciando movimentação dos relatorios")
+    time.sleep(20)
+    # Definição dos caminhos
+    origem = r"C:\Users\DRT78473\OneDrive - Hospital Albert Einstein\Documentos\DevDesk"
+    destinos = {
+        "Base_Entradas_temp.xlsx": r"\\arqsv0\sl\PlanLogistica\INDICADORES\DASHBOARDs\PROJETO GERENCIAL",
+        "Base_Parcial.xlsx": r"\\arqsv0\sl\PlanLogistica\INDICADORES\DASHBOARDs\PROJETO GERENCIAL\Bases MC.9",
+        "NS_hoje.xlsx": r"\\arqsv0\sl\PlanLogistica\INDICADORES\DASHBOARDs\Automacao\Nivel de servico",
+        "Emprestimos.xlsx": r"\\arqsv0\sl\PlanLogistica\INDICADORES\DASHBOARDs\PROJETO GERENCIAL"
+    }
+
+    # Copiando os arquivos
+    for arquivo, destino in destinos.items():
+        origem_arquivo = os.path.join(origem, arquivo)
+        destino_arquivo = os.path.join(destino, arquivo)
+        
+        try:
+            shutil.copy2(origem_arquivo, destino_arquivo)
+            print(f"Arquivo '{arquivo}' copiado para '{destino}'")
+        except Exception as e:
+            print(f"Erro ao copiar '{arquivo}': {e}")
