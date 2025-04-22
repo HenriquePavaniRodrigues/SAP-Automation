@@ -124,6 +124,8 @@ def executar_zmm304(session):
     log("Retorno para a tela inicial concluído.", "success")
 
 def executar_mc9(session):
+    # Obtendo o mês e o ano atual no formato MM.AAAA
+    mes_atual = datetime.now().strftime("%m.%Y")
     caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Base_Parcial.XLSX")
     log("Executando MC.9...")
     session.findById("wnd[0]").maximize()
@@ -145,8 +147,8 @@ def executar_mc9(session):
     session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").doubleClickCurrentCell()
 
     log("Inserindo período...")
-    session.findById("wnd[0]/usr/ctxtSL_SPMON-LOW").text = "03.2025"
-    session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").text = "03.2025"
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-LOW").text = mes_atual
+    session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").text = mes_atual
     session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").setFocus()
     session.findById("wnd[0]/usr/ctxtSL_SPMON-HIGH").caretPosition = 7
     session.findById("wnd[0]/tbar[1]/btn[8]").press()
@@ -218,6 +220,7 @@ if __name__ == "__main__":
     executar_mb25(session)
     executar_mc9(session)
     executar_zmm304(session)
+    
     log("Todos os processos foram concluídos! 🚀", "success")
     log("////")
     log("Iniciando movimentação dos relatorios")
