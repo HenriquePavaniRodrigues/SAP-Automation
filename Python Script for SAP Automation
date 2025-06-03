@@ -126,6 +126,7 @@ def executar_zmm304(session):
 def executar_mc9(session):
     # Obtendo o mês e o ano atual no formato MM.AAAA
     mes_atual = datetime.now().strftime("%m.%Y")
+    #mes_atual = "05.2025"
     caminho_arquivo = os.path.join("C:\\Users\\DRT78473\\OneDrive - Hospital Albert Einstein\\Documentos\\DevDesk", "Base_Parcial.XLSX")
     log("Executando MC.9...")
     session.findById("wnd[0]").maximize()
@@ -234,7 +235,7 @@ if __name__ == "__main__":
         "Emprestimos.xlsx": r"\\arqsv0\sl\PlanLogistica\INDICADORES\DASHBOARDs\PROJETO GERENCIAL"
     }
 
-    # Copiando os arquivos
+    # Copiando arquivos
     for arquivo, destino in destinos.items():
         origem_arquivo = os.path.join(origem, arquivo)
         destino_arquivo = os.path.join(destino, arquivo)
